@@ -44,10 +44,18 @@ class Store extends ChangeNotifier {
   requestProducts() async {
     var products = await _storekit2Plugin.getProducts(_productIds);
 
-    fuel = products.where((element) => element.type == Product.consumable).toList();
-    cars = products.where((element) => element.type == Product.nonConsumable).toList();
-    subscriptions = products.where((element) => element.type == Product.autoRenewable).toList();
-    nonRenewables = products.where((element) => element.type == Product.nonRenewable).toList();
+    fuel = products
+        .where((element) => element.type == Product.consumable)
+        .toList();
+    cars = products
+        .where((element) => element.type == Product.nonConsumable)
+        .toList();
+    subscriptions = products
+        .where((element) => element.type == Product.autoRenewable)
+        .toList();
+    nonRenewables = products
+        .where((element) => element.type == Product.nonRenewable)
+        .toList();
 
     cars.sort((a, b) => a.price.compareTo(b.price));
     fuel.sort((a, b) => a.price.compareTo(b.price));
@@ -59,7 +67,8 @@ class Store extends ChangeNotifier {
 
   Future<bool> purchaseProduct(String productId) async {
     String appAccountToken = const Uuid().v4();
-    var transaction = await _storekit2Plugin.purchase(appAccountToken, productId);
+    var transaction =
+        await _storekit2Plugin.purchase(appAccountToken, productId);
     if (null == transaction) {
       debugPrint('Failed to purchase product: $productId');
       return false;
@@ -70,7 +79,6 @@ class Store extends ChangeNotifier {
 
     return true;
   }
-
 
   // //Iterate through any transactions that don't come from a direct call to `purchase()`.
   void listenForTransactions() {
@@ -92,27 +100,34 @@ class Store extends ChangeNotifier {
         case 'nonconsumable.car':
         case 'nonconsumable.utilityvehicle':
         case 'nonconsumable.racecar':
-          if (!purchasedCars.any((element) => element.id == transaction.productId)) {
-            purchasedCars.add(cars.firstWhere((element) => element.id == transaction.productId));
+          if (!purchasedCars
+              .any((element) => element.id == transaction.productId)) {
+            purchasedCars.add(cars
+                .firstWhere((element) => element.id == transaction.productId));
           }
           break;
         case 'nonRenewing.standard':
-        // noRenewing的产品，需要客户端自己实现具体的业务逻辑
-        // 判断是否过期才加入已购买列表
-        // 购买日期+1年
-          var expiredDate = DateTime.fromMillisecondsSinceEpoch(transaction.purchaseDate.toInt()).add(const Duration(days: 365));
+          // noRenewing的产品，需要客户端自己实现具体的业务逻辑
+          // 判断是否过期才加入已购买列表
+          // 购买日期+1年
+          var expiredDate = DateTime.fromMillisecondsSinceEpoch(
+                  transaction.purchaseDate.toInt())
+              .add(const Duration(days: 365));
           if (DateTime.now().isBefore(expiredDate)) {
-            if (!purchasedNonRenewableSubscriptions.any((element) => element.id == transaction.productId)) {
-              purchasedNonRenewableSubscriptions
-                  .add(nonRenewables.firstWhere((element) => element.id == transaction.productId));
+            if (!purchasedNonRenewableSubscriptions
+                .any((element) => element.id == transaction.productId)) {
+              purchasedNonRenewableSubscriptions.add(nonRenewables.firstWhere(
+                  (element) => element.id == transaction.productId));
             }
           }
           break;
         case 'subscription.standard':
         case 'subscription.premium':
         case 'subscription.pro':
-          if (!purchasedSubscription.any((element) => element.id == transaction.productId)) {
-            purchasedSubscription.add(subscriptions.firstWhere((element) => element.id == transaction.productId));
+          if (!purchasedSubscription
+              .any((element) => element.id == transaction.productId)) {
+            purchasedSubscription.add(subscriptions
+                .firstWhere((element) => element.id == transaction.productId));
           }
           break;
         default:
@@ -121,7 +136,8 @@ class Store extends ChangeNotifier {
     }
 
     this.purchasedCars = purchasedCars;
-    this.purchasedNonRenewableSubscriptions = purchasedNonRenewableSubscriptions;
+    this.purchasedNonRenewableSubscriptions =
+        purchasedNonRenewableSubscriptions;
     this.purchasedSubscription = purchasedSubscription;
 
     notifyListeners();
@@ -141,13 +157,16 @@ class Store extends ChangeNotifier {
 
       if (null == highestSubscription) {
         highestSubscriptionStatus = status;
-        highestSubscription = subscriptions.firstWhere((element) => element.id == status.renewalInfo!.currentProductID);
+        highestSubscription = subscriptions.firstWhere(
+            (element) => element.id == status.renewalInfo!.currentProductID);
       }
 
       // 可能有多个订阅， 找出优先级最高的订阅
-      if (tier(status.renewalInfo!.currentProductID) > tier(highestSubscription!.id)) {
+      if (tier(status.renewalInfo!.currentProductID) >
+          tier(highestSubscription.id)) {
         highestSubscriptionStatus = status;
-        highestSubscription = subscriptions.firstWhere((element) => element.id == status.renewalInfo!.currentProductID);
+        highestSubscription = subscriptions.firstWhere(
+            (element) => element.id == status.renewalInfo!.currentProductID);
       }
     }
 
@@ -184,9 +203,16 @@ class Store extends ChangeNotifier {
       case Product.autoRenewable:
         return purchasedSubscription.any((element) => element.id == product.id);
       case Product.nonRenewable:
-        return purchasedNonRenewableSubscriptions.any((element) => element.id == product.id);
+        return purchasedNonRenewableSubscriptions
+            .any((element) => element.id == product.id);
       default:
         return false;
     }
+  }
+
+  Future<String?> beginRefundForCurrentSubscription() async {
+    final transactionId = currentSubscriptionStatus?.transaction?.id;
+    if (transactionId == null) return null;
+    return await _storekit2Plugin.beginRefundRequest(transactionId);
   }
 }

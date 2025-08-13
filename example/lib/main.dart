@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:storekit2/product.dart';
-import 'dart:async';
-
-import 'package:storekit2/storekit2.dart';
+// unused imports removed
 import 'package:storekit2_example/home_page.dart';
 import 'package:storekit2_example/store.dart';
 import 'package:storekit2_example/store_view.dart';
@@ -34,4 +31,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-

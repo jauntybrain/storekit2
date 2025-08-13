@@ -50,11 +50,16 @@ abstract class Storekit2Platform extends PlatformInterface {
   }
 
   Future<List<Transaction>> getCurrentEntitlements() {
-    throw UnimplementedError('getCurrentEntitlements() has not been implemented.');
+    throw UnimplementedError(
+        'getCurrentEntitlements() has not been implemented.');
   }
 
   Future<List<Status>> getSubscriptionStatus(String groupId) {
-    throw UnimplementedError('getSubscriptionGroupStatus() has not been implemented.');
+    throw UnimplementedError(
+        'getSubscriptionGroupStatus() has not been implemented.');
   }
 
+  Future<String> beginRefundRequest(int transactionId) {
+    throw UnimplementedError('beginRefundRequest() has not been implemented.');
+  }
 }

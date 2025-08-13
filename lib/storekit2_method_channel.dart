@@ -29,9 +29,10 @@ class MethodChannelStorekit2 extends Storekit2Platform {
   }
 
   @override
-  Future<Transaction?> purchase(String appAccountToken, String productId) async {
-    final result =
-        await methodChannel.invokeMethod('purchase', {'productId': productId, 'appAccountToken': appAccountToken});
+  Future<Transaction?> purchase(
+      String appAccountToken, String productId) async {
+    final result = await methodChannel.invokeMethod('purchase',
+        {'productId': productId, 'appAccountToken': appAccountToken});
     // debugPrint('result: $result');
     return result != null
         ? Transaction.fromMap(Map<String, dynamic>.from(result))
@@ -90,5 +91,13 @@ class MethodChannelStorekit2 extends Storekit2Platform {
     debugPrint('getSubscriptionGroupStatus result: $result');
     // 返回的是String，需要转换为枚举类型
     return List<dynamic>.from(result).map((e) => Status.fromMap(e)).toList();
+  }
+
+  @override
+  Future<String> beginRefundRequest(int transactionId) async {
+    final result = await methodChannel.invokeMethod('beginRefundRequest', {
+      'transactionId': transactionId,
+    });
+    return result as String;
   }
 }

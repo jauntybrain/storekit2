@@ -12,8 +12,10 @@ class Storekit2 {
     return await Storekit2Platform.instance.getProducts(productIds);
   }
 
-  Future<Transaction?> purchase(String appAccountToken, String productId) async {
-    return await Storekit2Platform.instance.purchase(appAccountToken, productId);
+  Future<Transaction?> purchase(
+      String appAccountToken, String productId) async {
+    return await Storekit2Platform.instance
+        .purchase(appAccountToken, productId);
   }
 
   Future<bool> restore() async {
@@ -36,5 +38,9 @@ class Storekit2 {
   // 获取订阅组状态
   Future<List<Status>> getSubscriptionStatus(String groupId) async {
     return await Storekit2Platform.instance.getSubscriptionStatus(groupId);
+  }
+
+  Future<String> beginRefundRequest(int transactionId) async {
+    return await Storekit2Platform.instance.beginRefundRequest(transactionId);
   }
 }

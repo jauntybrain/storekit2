@@ -1,6 +1,6 @@
 name: storekit2
 description: "iOS storekit 2 plugin for Flutter"
-version: 0.0.2
+version: 0.0.3
 homepage: https://github.com/yeshu-cn/storekit2
 
 environment:

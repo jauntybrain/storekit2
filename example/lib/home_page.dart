@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:storekit2/product.dart';
 import 'package:storekit2_example/list_cell_view.dart';
@@ -12,7 +13,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   @override
   void initState() {
     final store = context.read<Store>();
@@ -45,7 +45,8 @@ class _HomePageState extends State<HomePage> {
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text('Head to the store to purchase some products!', style: Theme.of(context).textTheme.labelLarge),
+            child: Text('Head to the store to purchase some products!',
+                style: Theme.of(context).textTheme.labelLarge),
           ),
           const SizedBox(height: 16),
           ElevatedButton(
@@ -64,14 +65,32 @@ class _HomePageState extends State<HomePage> {
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text('My Cars', style: Theme.of(context).textTheme.titleLarge),
+            child:
+                Text('My Cars', style: Theme.of(context).textTheme.titleLarge),
           ),
           _buildMyCars(store.purchasedCars),
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text('Navigation Service', style: Theme.of(context).textTheme.titleLarge),
+            child: Text('Navigation Service',
+                style: Theme.of(context).textTheme.titleLarge),
           ),
           _buildNavigationService(store),
+          const SizedBox(height: 16),
+          if (store.currentSubscriptionStatus != null)
+            CupertinoButton.filled(
+              onPressed: () async {
+                final result = await context
+                    .read<Store>()
+                    .beginRefundForCurrentSubscription();
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                      content:
+                          Text('Refund result: ${result ?? 'no transaction'}')),
+                );
+              },
+              child: const Text('Request Refund'),
+            ),
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pushNamed('/store'),
@@ -84,7 +103,8 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildMyCars(List<Product> cars) {
     if (cars.isEmpty) {
-      return Text("You don't own any car products. \nHead over to the shop to get started!",
+      return Text(
+          "You don't own any car products. \nHead over to the shop to get started!",
           style: Theme.of(context).textTheme.bodyMedium);
     } else {
       return Column(
@@ -102,23 +122,24 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildNavigationService(Store store) {
-    if (store.purchasedNonRenewableSubscriptions.isNotEmpty || store.purchasedSubscription.isNotEmpty) {
+    if (store.purchasedNonRenewableSubscriptions.isNotEmpty ||
+        store.purchasedSubscription.isNotEmpty) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ...store.purchasedNonRenewableSubscriptions
-              .map((product) => Padding(
+          ...store.purchasedNonRenewableSubscriptions.map((product) => Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: ListCellView(product: product, purchaseEnabled: false),
               )),
           ...store.purchasedSubscription.map((product) => Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ListCellView(product: product, purchaseEnabled: false),
-          )),
+                padding: const EdgeInsets.all(8.0),
+                child: ListCellView(product: product, purchaseEnabled: false),
+              )),
         ],
       );
     } else {
-      return Text("You don't own any subscriptions. \nHead over to the shop to get started!",
+      return Text(
+          "You don't own any subscriptions. \nHead over to the shop to get started!",
           style: Theme.of(context).textTheme.bodyMedium);
     }
   }

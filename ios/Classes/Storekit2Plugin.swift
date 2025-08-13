@@ -36,6 +36,8 @@ public class Storekit2Plugin: NSObject, FlutterPlugin {
             handleGetCurrentEntitlements(result: result)
         case "getSubscriptionStatus":
             handleGetSubscriptionStatus(call, result: result)
+        case "beginRefundRequest":
+            handleBeginRefundRequest(call, result: result)
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -167,6 +169,45 @@ public class Storekit2Plugin: NSObject, FlutterPlugin {
                 result(statuses.map { $0.toMap() })
             } catch {
                 handleError(error, result: result)
+            }
+        }
+    }
+
+    private func handleBeginRefundRequest(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let args = call.arguments as? [String: Any] else {
+            result(FlutterError(code: "INVALID_ARGUMENTS", message: "Invalid arguments for beginRefundRequest", details: nil))
+            return
+        }
+        var transactionId: UInt64?
+        if let n = args["transactionId"] as? NSNumber {
+            transactionId = n.uint64Value
+        } else if let i = args["transactionId"] as? Int {
+            transactionId = UInt64(i)
+        } else if let u = args["transactionId"] as? UInt64 {
+            transactionId = u
+        }
+        guard let transactionId = transactionId else {
+            result(FlutterError(code: "INVALID_ARGUMENTS", message: "transactionId is required and must be a number", details: nil))
+            return
+        }
+
+        Task { @MainActor in
+            do {
+                guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene else {
+                    result(FlutterError(code: "NO_SCENE", message: "No active UIWindowScene found", details: nil))
+                    return
+                }
+                let status = try await Transaction.beginRefundRequest(for: transactionId, in: scene)
+                switch status {
+                case .success:
+                    result("success")
+                case .userCancelled:
+                    result("userCancelled")
+                @unknown default:
+                    result("unknown")
+                }
+            } catch {
+                self.handleError(error, result: result)
             }
         }
     }
