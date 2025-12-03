@@ -9,8 +9,7 @@ public enum StoreError: Error {
 }
 
 public class Storekit2Plugin: NSObject, FlutterPlugin {
-    @available(iOS 13.0, *)
-    private var transactionListenerTask: Task<Void, Error>?
+    private var transactionListenerTask: Any?
     private var channel: FlutterMethodChannel
     
     init(channel: FlutterMethodChannel) {
@@ -273,7 +272,7 @@ public class Storekit2Plugin: NSObject, FlutterPlugin {
     deinit {
         // 取消监听任务
         if #available(iOS 13.0, *) {
-            transactionListenerTask?.cancel()
+            (transactionListenerTask as? Task<Void, Error>)?.cancel()
         }
     }
 }
