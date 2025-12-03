@@ -1,6 +1,7 @@
 import Foundation
 import StoreKit
 
+@available(iOS 15.0, *)
 extension Transaction {
     func toMap() -> [String: Any?] {
         return [
@@ -23,6 +24,7 @@ extension Transaction {
     }
 }
 
+@available(iOS 15.0, *)
 extension Product.ProductType {
     func toString() -> String {
         switch self {
@@ -40,6 +42,7 @@ extension Product.ProductType {
     }
 }
 
+@available(iOS 15.0, *)
 extension Product {
     func toMap() -> [String: Any?] {
         return [
@@ -55,6 +58,7 @@ extension Product {
     }
 }
 
+@available(iOS 15.0, *)
 extension Product.SubscriptionInfo {
     func toMap() -> [String: Any?] {
         return [
@@ -66,6 +70,7 @@ extension Product.SubscriptionInfo {
     }
 }
 
+@available(iOS 15.0, *)
 extension Product.SubscriptionOffer {
     func toMap() -> [String: Any?] {
         return [
@@ -80,6 +85,7 @@ extension Product.SubscriptionOffer {
     }
 }
 
+@available(iOS 15.0, *)
 extension Product.SubscriptionOffer.PaymentMode {
     func toString() -> String {
         switch self {
@@ -95,6 +101,7 @@ extension Product.SubscriptionOffer.PaymentMode {
     }
 }
 
+@available(iOS 15.0, *)
 extension Product.SubscriptionOffer.OfferType {
     func toString() -> String {
         switch self {
@@ -108,6 +115,7 @@ extension Product.SubscriptionOffer.OfferType {
     }
 }
 
+@available(iOS 15.0, *)
 extension Product.SubscriptionPeriod {
     func toMap() -> [String: Any?] {
         return [
@@ -117,6 +125,7 @@ extension Product.SubscriptionPeriod {
     }
 }
 
+@available(iOS 15.0, *)
 extension Product.SubscriptionPeriod.Unit {
     func toString() -> String {
         switch self {
@@ -134,6 +143,7 @@ extension Product.SubscriptionPeriod.Unit {
     }
 }
 
+@available(iOS 15.0, *)
 extension Product.SubscriptionInfo.RenewalState {
     func toString() -> String {
         switch self {
@@ -153,6 +163,7 @@ extension Product.SubscriptionInfo.RenewalState {
     }
 }
 
+@available(iOS 15.0, *)
 extension Product.SubscriptionInfo.Status {
     func toMap() -> [String: Any?] {
         let transactionValue: Transaction?
@@ -179,6 +190,7 @@ extension Product.SubscriptionInfo.Status {
     }
 }
 
+@available(iOS 15.0, *)
 extension Product.SubscriptionInfo.RenewalInfo {
     func toMap() -> [String: Any?] {
         return [
@@ -199,6 +211,7 @@ extension Product.SubscriptionInfo.RenewalInfo {
     }
 }
 
+@available(iOS 15.0, *)
 extension Product.SubscriptionInfo.RenewalInfo.ExpirationReason {
     func toString() -> String {
         switch self {
@@ -218,6 +231,7 @@ extension Product.SubscriptionInfo.RenewalInfo.ExpirationReason {
     }
 }
 
+@available(iOS 15.0, *)
 extension Product.SubscriptionInfo.RenewalInfo.PriceIncreaseStatus {
     func toString() -> String {
         switch self {

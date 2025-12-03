@@ -9,13 +9,16 @@ public enum StoreError: Error {
 }
 
 public class Storekit2Plugin: NSObject, FlutterPlugin {
+    @available(iOS 13.0, *)
     private var transactionListenerTask: Task<Void, Error>?
     private var channel: FlutterMethodChannel
     
     init(channel: FlutterMethodChannel) {
         self.channel = channel
         super.init()
-        startTransactionListener()
+        if #available(iOS 15.0, *) {
+            startTransactionListener()
+        }
     }
     
     public static func register(with registrar: FlutterPluginRegistrar) {
@@ -25,21 +28,25 @@ public class Storekit2Plugin: NSObject, FlutterPlugin {
     }
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        switch call.method {
-        case "getProducts":
-            handleGetProducts(call, result: result)
-        case "purchase":
-            handlePurchase(call, result: result)
-        case "restore":
-            handleRestore(result: result)
-        case "getCurrentEntitlements":
-            handleGetCurrentEntitlements(result: result)
-        case "getSubscriptionStatus":
-            handleGetSubscriptionStatus(call, result: result)
-        case "beginRefundRequest":
-            handleBeginRefundRequest(call, result: result)
-        default:
-            result(FlutterMethodNotImplemented)
+        if #available(iOS 15.0, *) {
+            switch call.method {
+            case "getProducts":
+                handleGetProducts(call, result: result)
+            case "purchase":
+                handlePurchase(call, result: result)
+            case "restore":
+                handleRestore(result: result)
+            case "getCurrentEntitlements":
+                handleGetCurrentEntitlements(result: result)
+            case "getSubscriptionStatus":
+                handleGetSubscriptionStatus(call, result: result)
+            case "beginRefundRequest":
+                handleBeginRefundRequest(call, result: result)
+            default:
+                result(FlutterMethodNotImplemented)
+            }
+        } else {
+            result(FlutterError(code: "UNSUPPORTED_OS", message: "StoreKit 2 requires iOS 15.0 or later", details: nil))
         }
     }
     
@@ -58,6 +65,7 @@ public class Storekit2Plugin: NSObject, FlutterPlugin {
         }
     }
     
+    @available(iOS 15.0, *)
     private func handleGetProducts(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         guard let args = call.arguments as? [String: Any],
               let productIds = args["productIds"] as? [String] else {
@@ -75,6 +83,7 @@ public class Storekit2Plugin: NSObject, FlutterPlugin {
         }
     }
     
+    @available(iOS 15.0, *)
     private func handlePurchase(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         guard let args = call.arguments as? [String: Any],
               let productId = args["productId"] as? String,
@@ -123,6 +132,7 @@ public class Storekit2Plugin: NSObject, FlutterPlugin {
         }
     }
     
+    @available(iOS 15.0, *)
     private func handleRestore(result: @escaping FlutterResult) {
         Task {
             do {
@@ -134,6 +144,7 @@ public class Storekit2Plugin: NSObject, FlutterPlugin {
         }
     }
     
+    @available(iOS 15.0, *)
     private func handleGetCurrentEntitlements(result: @escaping FlutterResult) {
          Task {
              let entitlements = await getCurrentEntitlements()
@@ -141,6 +152,7 @@ public class Storekit2Plugin: NSObject, FlutterPlugin {
          }
      }
     
+    @available(iOS 15.0, *)
     func getCurrentEntitlements() async -> [[String: Any?]] {
         var entitlements: [[String: Any?]] = []
         for await result in Transaction.currentEntitlements {
@@ -156,6 +168,7 @@ public class Storekit2Plugin: NSObject, FlutterPlugin {
         return entitlements
     }
     
+    @available(iOS 15.0, *)
     private func handleGetSubscriptionStatus(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         guard let args = call.arguments as? [String: Any],
               let groupId = args["groupId"] as? String else {
@@ -173,6 +186,7 @@ public class Storekit2Plugin: NSObject, FlutterPlugin {
         }
     }
 
+    @available(iOS 15.0, *)
     private func handleBeginRefundRequest(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         guard let args = call.arguments as? [String: Any] else {
             result(FlutterError(code: "INVALID_ARGUMENTS", message: "Invalid arguments for beginRefundRequest", details: nil))
@@ -213,6 +227,7 @@ public class Storekit2Plugin: NSObject, FlutterPlugin {
     }
 
     
+    @available(iOS 15.0, *)
     private func checkVerified<T>(_ result: VerificationResult<T>) throws -> T {
         //Check whether the JWS passes StoreKit verification.
         switch result {
@@ -225,6 +240,7 @@ public class Storekit2Plugin: NSObject, FlutterPlugin {
         }
     }
     
+    @available(iOS 15.0, *)
     private func listenForTransactions() -> Task<Void, Error> {
         return Task.detached {
             for await result in Transaction.updates {
@@ -243,6 +259,7 @@ public class Storekit2Plugin: NSObject, FlutterPlugin {
         }
     }
     
+    @available(iOS 15.0, *)
     private func startTransactionListener() {
         transactionListenerTask = listenForTransactions()
     }
@@ -255,6 +272,8 @@ public class Storekit2Plugin: NSObject, FlutterPlugin {
     
     deinit {
         // 取消监听任务
-        transactionListenerTask?.cancel()
+        if #available(iOS 13.0, *) {
+            transactionListenerTask?.cancel()
+        }
     }
 }
